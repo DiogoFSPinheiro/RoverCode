@@ -7,18 +7,19 @@
 
 const double PI = 3.14159265358979323846;
 const int MAP_SIZE = 100;  // 100x100 células
-const double SCALE = 0.1;  // metros por célula 
+const double SCALE = 0.1;  // metros por célula, 10 metros de mapa
 
 struct PolarPoint
 {
-    double angle;
-    double distance; 
+	double angle;
+	double distance; 
 };
 
 struct CartesianPoint
 {
-    int x;
-    int y;
+	int x;
+	int y;
+
 };
 
 class LidarMap
@@ -26,7 +27,7 @@ class LidarMap
 	private:
 
 		std::vector<std::vector<int>> map;
-		std::mutex map_mutex;
+		mutable std::mutex map_mutex;
 
 		CartesianPoint polarToCartesian(const PolarPoint& point)
 		{
@@ -47,7 +48,7 @@ class LidarMap
 			if (cart.x >= 0 && cart.x < MAP_SIZE && cart.y >= 0 && cart.y < MAP_SIZE)
 			{
 				std::lock_guard<std::mutex> lock(map_mutex);
-				map[cart.y][cart.x] = 1;  // marca como obstáculo
+				map[cart.y][cart.x] = 1;
 			}
 		}
 
