@@ -106,17 +106,17 @@ void Astart::node_espand(s_node node,cv::Point end)
 	p[2].y++;
 	p[3].y--;
         node_[0] = create_node(p[0], node.point, end);
-        node_[2] = create_node(p[1], node.point, end);
+        node_[1] = create_node(p[1], node.point, end);
         node_[2] = create_node(p[2], node.point, end);
         node_[3] = create_node(p[3], node.point, end);
 		
 	_close.splice(_close.end(), _open, chek_points(node.point));
-	std::cout << "node " << node.point << std::endl;
+	//std::cout << "node " << node.point << std::endl;
 	for(int i = 0; i < 4;i++)
 	{
 		if(node_[i].point == end)
 		{
-			std::cout << "ok _end" << std::endl;
+	//		std::cout << "ok _end" << std::endl;
 			_close.splice(_close.end(), _open);	
 			_close.emplace_front(node_[i]);
 			return;
@@ -140,29 +140,38 @@ bool Astart::start_al(cv::Point start, cv::Point end)
 	_open.clear();
 	_close.clear();
 	_rute.clear();
+
 	node  = create_node(start, start, end);
 	copy = node;
+	cv::Vec3i color= this->get_color(end);
+	if(color[0] == 0  && color[1] == 0 && color[2] == 255)
+		return false ;	
+	color= this->get_color(start);
+		if(color[0] == 0  && color[1] == 0 && color[2] == 255)
+		return false ;	
 	_open.emplace_front(node);	
 	while (!_open.empty())
 	{
+		if(_open.size() > 2)
+		{
 		_open.sort([](const t_node& a,const  t_node& b) {
         	return a.f < b.f;  // Ordena por menor f
    		});
+		}
 		node_espand(*_open.begin(),end);	
 	}
 	point = end;
-
+	
+	std::cout << point << std::endl;
 	while ( chek_points(point)->point != start && chek_points(point) != _close.end())
 	{
 
-		std::cout << point << std::endl;
 		temp = point;
 		point = chek_points(point)->previos_point;
-		_rute.splice(_rute.end(), _rute, chek_points(temp));			
+		_rute.splice(_rute.end(), _rute, chek_points(temp));
 		temp = point;
 		
 	}
-
 	_rute.splice(_rute.end(), _rute, chek_points(start));			
 	return (true);
 }

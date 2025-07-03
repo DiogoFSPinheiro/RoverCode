@@ -88,8 +88,8 @@ const int SIZE = 5;  // Tamanho do mapa (5x5 neste exemplo)
     Astart *map_ = new Astart(resultado);
 
     
-    cv::Point p1(83,104);
-    cv::Point p2(330,220);
+    cv::Point p1(90,104);
+    cv::Point p2(403,44);
 
     
  //  map_->write_map_point(p1);
