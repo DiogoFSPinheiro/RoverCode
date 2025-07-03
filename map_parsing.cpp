@@ -2,11 +2,11 @@
 #include "opencv2/core/types.hpp"
 #include "opencv2/features2d.hpp"
 #include "opencv2/imgproc.hpp"
-#include <ios>
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <ostream>
-#include "./src/DFS/Depth_First_Search.hpp"
+#include "./src/_Map/Depth_First_Search.hpp"
+#include "src/_Map/A-star/A-star.hpp"
 
 #define IMG_T resultado
 
@@ -54,24 +54,54 @@ int main() {
     }
 
     // Mostra o resultado
-   
+    
 
-    DFS *map_ = new DFS(IMG_T);
+const int SIZE = 5;  // Tamanho do mapa (5x5 neste exemplo)
+
+    // Matriz definida manualmente
+    int mapData[SIZE][SIZE] = {
+        {3, 0, 0, 0, 0},
+        {0, 1, 1, 1, 0},
+        {0, 0, 2, 0, 0},
+        {0, 1, 1, 1, 0},
+        {0, 0, 0, 0, 0}
+    };
+
+    // Criar imagem
+    cv::Mat img(SIZE, SIZE, CV_8UC3);
+
+    for (int y = 0; y < SIZE; y++) {
+        for (int x = 0; x < SIZE; x++) {
+            switch (mapData[y][x]) {
+                case 0: img.at<cv::Vec3b>(y, x) = cv::Vec3b(0, 0, 0); break;        // Preto
+                case 1: img.at<cv::Vec3b>(y, x) = cv::Vec3b(0, 0, 255); break;  // Branco
+                case 2: img.at<cv::Vec3b>(y, x) = cv::Vec3b(0, 0, 0); break;      // Verde
+                case 3: img.at<cv::Vec3b>(y, x) = cv::Vec3b(0, 0, 0); break;      // Vermelho
+                default: img.at<cv::Vec3b>(y, x) = cv::Vec3b(128, 128, 128); break; // Cinza
+            }
+        }
+    }
+
+    // Ampliar para ver melhor
+  
+
+    Astart *map_ = new Astart(resultado);
 
     
-    cv::Point p1(15,15);
-
-    cv::Point p2(100,100);
+    cv::Point p1(83,104);
+    cv::Point p2(330,220);
 
     
-   map_->write_map_point(p1);
+ //  map_->write_map_point(p1);
+  // map_->write_map_point(p2);
 
-   map_->write_map_point(p2);
-   cv::Vec3b cor = resultado.at<cv::Vec3b>(p1) ;
-
-	
-    std::cout <<  "cor e "<<  (int)cor[1] << std::endl;
-
+   map_->start_al(p1, p2);
+   map_->rute_to_map();
+//   map_->escrever_caminho(p2);
+   // map_->set_rute(p1,p2);
+    //
+    
+  //  std::cout <<  "cor e "<<  (int)map_->get_color(p1)[1] << std::endl;
 
     cv::namedWindow("Obstáculos detectados", cv::WINDOW_NORMAL);
     cv::resizeWindow("Obstáculos detectados", 800, 600); // Define o tamanho da janela
@@ -79,6 +109,7 @@ int main() {
     cv::imshow("Obstáculos detectados", map_->get_map());
 
     cv::waitKey(0);
+
     return 0;
 }
 
