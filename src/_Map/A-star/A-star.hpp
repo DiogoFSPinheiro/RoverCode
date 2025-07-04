@@ -28,13 +28,12 @@ class Astart : public Map_
 	private:
 		std::list<t_node> _open;
 		std::list<t_node> _close;
-		std::list<t_node> _rute;
-		auto  chek_points(cv::Point);
-	  	int Distace(cv::Point point,cv::Point end);
-		bool  chek_valid_point(t_node node);
-		t_node create_node(cv::Point point ,cv::Point prev,cv::Point end);
-		double heuristic(cv::Point a, cv::Point b);
-		void node_espand(s_node node,cv::Point end);		
+		std::list<t_node> _route;
+		auto  	check_point(cv::Point);
+		bool  	is_valid_point(t_node node);
+		t_node 	create_node(cv::Point point ,cv::Point prev,cv::Point end);
+		double 	heuristic(cv::Point a, cv::Point b);
+		void 	expand_node(s_node node,cv::Point end);		
 
 	public:
 	  Astart(cv::Mat( map));

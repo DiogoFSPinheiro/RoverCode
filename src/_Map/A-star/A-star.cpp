@@ -29,7 +29,7 @@ Astart &Astart::operator=(Astart &ret)
 }
 
 
-auto  Astart::chek_points(cv::Point target)
+auto  Astart::check_point(cv::Point target)
 {
 	auto it = std::find_if(_open.begin(), _open.end(), [&](const t_node& node)
 	{
@@ -46,15 +46,15 @@ auto  Astart::chek_points(cv::Point target)
 
 }
 
-bool  Astart::chek_valid_point(t_node node)
+bool  Astart::is_valid_point(t_node node)
 {
 
-	if(node.point.x > _map.rows || node.point.y > _map.cols || node.point.x < 0 || node.point.y < 0 )
+	if(node.point.x > _map.cols || node.point.y > _map.rows || node.point.x < 0 || node.point.y < 0 )
 		return (false);
 	cv::Vec3i color= this->get_color(node.point);
 	if(color[0] == 0  && color[1] == 0 && color[2] == 255)
 		return (false);
-	auto node_che = chek_points(node.point);
+	auto node_che = check_point(node.point);
 	if(node_che == _open.end() ||  node_che == _close.end() )
 		return (true);	
 	return (false);
@@ -72,8 +72,8 @@ t_node Astart::create_node(cv::Point point, cv::Point prev, cv::Point goal)
     t_node node;
     
     // Busca nó anterior
-    auto node_prev = chek_points(prev);  
-    if (prev == point)
+    auto node_prev = check_point(prev);  
+    if ( node_prev == _open.end() || node_prev == _close.end()|| prev == point)
         // Se não existe nó anterior (ex: início), g = 0
         node.g = 0;
     else
@@ -92,7 +92,7 @@ t_node Astart::create_node(cv::Point point, cv::Point prev, cv::Point goal)
 }
 
 
-void Astart::node_espand(s_node node,cv::Point end)
+void Astart::expand_node(s_node node,cv::Point end)
 {
 	t_node node_[4];
 	cv::Point p[4];
@@ -110,18 +110,17 @@ void Astart::node_espand(s_node node,cv::Point end)
         node_[2] = create_node(p[2], node.point, end);
         node_[3] = create_node(p[3], node.point, end);
 		
-	_close.splice(_close.end(), _open, chek_points(node.point));
+	_close.splice(_close.end(), _open, check_point(node.point));
 	//std::cout << "node " << node.point << std::endl;
 	for(int i = 0; i < 4;i++)
 	{
 		if(node_[i].point == end)
 		{
-	//		std::cout << "ok _end" << std::endl;
 			_close.splice(_close.end(), _open);	
 			_close.emplace_front(node_[i]);
 			return;
 		}
-		if(chek_valid_point(node_[i]) == true)
+		if(is_valid_point(node_[i]) == true)
 		{
 			_open.emplace_front(node_[i]);
 		}
@@ -139,7 +138,7 @@ bool Astart::start_al(cv::Point start, cv::Point end)
 
 	_open.clear();
 	_close.clear();
-	_rute.clear();
+	_route.clear();
 
 	node  = create_node(start, start, end);
 	copy = node;
@@ -154,34 +153,33 @@ bool Astart::start_al(cv::Point start, cv::Point end)
 	{
 		if(_open.size() > 2)
 		{
-		_open.sort([](const t_node& a,const  t_node& b) {
-        	return a.f < b.f;  // Ordena por menor f
-   		});
+			_open.sort([](const t_node& a,const  t_node& b) {
+        		return a.f < b.f;  // Ordena por menor f
+   			});
 		}
-		node_espand(*_open.begin(),end);	
+		expand_node(*_open.begin(),end);	
 	}
 	point = end;
 	
 	std::cout << point << std::endl;
-	while ( chek_points(point)->point != start && chek_points(point) != _close.end())
+	while ( check_point(point)->point != start && check_point(point) != _close.end())
 	{
 
 		temp = point;
-		point = chek_points(point)->previos_point;
-		_rute.splice(_rute.end(), _rute, chek_points(temp));
+		point = check_point(point)->previos_point;
+		_route.splice(_route.end(), _route, check_point(temp));
 		temp = point;
 		
 	}
-	_rute.splice(_rute.end(), _rute, chek_points(start));			
+	_route.splice(_route.end(), _route, check_point(start));			
 	return (true);
 }
 
 
 void Astart::rute_to_map()
 {
-	for(auto& node :_rute)		
+	for(auto& node :_route)		
 	{
-	//write_map_point(node.point);
 		_map.at<cv::Vec3b>(node.point.y, node.point.x) = cv::Vec3b(0, 230, 0);
 	}
 }
