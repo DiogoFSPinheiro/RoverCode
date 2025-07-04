@@ -89,7 +89,7 @@ const int SIZE = 5;  // Tamanho do mapa (5x5 neste exemplo)
 
     
     cv::Point p1(90,104);
-    cv::Point p2(100,106);
+    cv::Point p2(260,300);
 
     
  //  map_->write_map_point(p1);

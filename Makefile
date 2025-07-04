@@ -1,23 +1,31 @@
 NAME = map_obj_viw
 
 CC = g++
-FLAG =  `pkg-config --cflags --libs opencv4`
-SRC = map_parsing.cpp
+FLAG = `pkg-config --cflags --libs opencv4`
+SRC = map_parsing.cpp ./src/_Map//Depth_First_Search.cpp  ./src/_Map/A-star/A-star.cpp
+
 SRCS = $(SRC:.cpp=.o)
+
+%.o:%.cpp
+	$(CC) $(FLAG) -c $< -o $@
+
 
 all: $(NAME)
 
-	g++ -o detectar_obstaculos map_parsing.cpp `pkg-config --cflags --libs opencv4`
+	g++ -o $(NAME) $(SRCS) `pkg-config --cflags --libs opencv4`
 
 $(NAME): $(SRCS)
 
 
-re:
-	make fclean
+re:fclean
 	make all
 
 clean:
-	$(SRCS)
+	rm -fr $(SRCS)
 
-fclean:
-	rm $(SRCS) $(NAME)
+fclean:clean
+	rm -fr $(SRCS) $(NAME)
+
+s:re
+	./$(NAME)
+	
