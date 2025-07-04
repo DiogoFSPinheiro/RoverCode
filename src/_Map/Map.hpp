@@ -1,12 +1,14 @@
-#ifndef Depth_First_Search
-#define Depth_First_Search
+#ifndef Map_HPP
+#define Map_HPP
 
 #include "opencv2/core/mat.hpp"
 #include "opencv2/core/types.hpp"
 #include "opencv2/imgproc.hpp"
 #include <opencv2/opencv.hpp>
 
-class Map_ 
+#include "A-star/A-star.hpp"
+
+class Map_  : public Astart
 {
 	protected:
 		cv::Mat _map;

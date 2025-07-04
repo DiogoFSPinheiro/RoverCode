@@ -9,12 +9,15 @@
 #include <algorithm> // para std::sort
 #include <ostream>
 
-Astart::Astart(cv::Mat map) : Map_(map)
+Astart::Astart(cv::Mat map) 
 {
+	this->_map = map;
 }
 
-Astart::Astart(Astart &copy) : Map_(copy)
+Astart::Astart(Astart &copy) 
 {
+
+	this->_map = copy._map.clone();
 }
 
 Astart::~Astart()
@@ -26,6 +29,13 @@ Astart::~Astart()
 Astart &Astart::operator=(Astart &ret)
 {
 	return(*this);
+}
+
+
+cv::Vec3b Astart::get_color(cv::Point2f p1)
+{
+    cv::Vec3b cor = _map.at<cv::Vec3b>(p1);
+    return (cor);
 }
 
 

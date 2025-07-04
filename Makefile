@@ -2,7 +2,7 @@ NAME = map_obj_viw
 
 CC = g++
 FLAG = `pkg-config --cflags --libs opencv4`
-SRC = map_parsing.cpp ./src/_Map//Depth_First_Search.cpp  ./src/_Map/A-star/A-star.cpp
+SRC = map_parsing.cpp ./src/_Map/Map.cpp  ./src/_Map/A-star/A-star.cpp
 
 SRCS = $(SRC:.cpp=.o)
 

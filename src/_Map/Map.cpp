@@ -1,16 +1,17 @@
-#include "Depth_First_Search.hpp"
+#include "Map.hpp"
 #include "opencv2/core/mat.hpp"
 #include "opencv2/core/matx.hpp"
 #include <ostream>
 
 
-Map_::Map_(cv::Mat map)
+
+Map_::Map_(cv::Mat map) : Astart(map)
 {
 	_map = map;
 	_t_point = 10;
 }
 
-Map_::Map_(Map_ &copy)
+Map_::Map_(Map_ &copy) : Astart(copy._map)
 {
 	this->_map = copy._map;
 	_t_point = copy._t_point;

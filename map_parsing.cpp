@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <ostream>
-#include "./src/_Map/Depth_First_Search.hpp"
+#include "./src/_Map/Map.hpp"
 #include "src/_Map/A-star/A-star.hpp"
 
 #define IMG_T resultado
@@ -52,56 +52,18 @@ int main() {
             cv::drawContours(IMG_T, contornos, (int)i, cv::Scalar(0, 0, 255), 2); // vermelho = obstáculo
         }
     }
-
-    // Mostra o resultado
-    
-
-const int SIZE = 5;  // Tamanho do mapa (5x5 neste exemplo)
-
-    // Matriz definida manualmente
-    int mapData[SIZE][SIZE] = {
-        {3, 0, 0, 0, 0},
-        {0, 1, 1, 1, 0},
-        {0, 0, 2, 0, 0},
-        {0, 1, 1, 1, 0},
-        {0, 0, 0, 0, 0}
-    };
-
-    // Criar imagem
-    cv::Mat img(SIZE, SIZE, CV_8UC3);
-
-    for (int y = 0; y < SIZE; y++) {
-        for (int x = 0; x < SIZE; x++) {
-            switch (mapData[y][x]) {
-                case 0: img.at<cv::Vec3b>(y, x) = cv::Vec3b(0, 0, 0); break;        // Preto
-                case 1: img.at<cv::Vec3b>(y, x) = cv::Vec3b(0, 0, 255); break;  // Branco
-                case 2: img.at<cv::Vec3b>(y, x) = cv::Vec3b(0, 0, 0); break;      // Verde
-                case 3: img.at<cv::Vec3b>(y, x) = cv::Vec3b(0, 0, 0); break;      // Vermelho
-                default: img.at<cv::Vec3b>(y, x) = cv::Vec3b(128, 128, 128); break; // Cinza
-            }
-        }
-    }
-
-    // Ampliar para ver melhor
-  
-
-    Astart *map_ = new Astart(resultado);
+ 
+    Map_ *map_ = new Map_(resultado);
 
     
     cv::Point p1(90,104);
-    cv::Point p2(260,300);
+    cv::Point p2(260,250);
 
     
- //  map_->write_map_point(p1);
-  // map_->write_map_point(p2);
 
    map_->start_al(p1, p2);
    map_->rute_to_map();
-//   map_->escrever_caminho(p2);
-   // map_->set_rute(p1,p2);
-    //
     
-  //  std::cout <<  "cor e "<<  (int)map_->get_color(p1)[1] << std::endl;
 
     cv::namedWindow("Obstáculos detectados", cv::WINDOW_NORMAL);
     cv::resizeWindow("Obstáculos detectados", 800, 600); // Define o tamanho da janela

@@ -10,7 +10,6 @@
 #ifndef A_start
 #define A_start
 
-#include "../Depth_First_Search.hpp"
 
 
 typedef struct s_node
@@ -23,17 +22,19 @@ typedef struct s_node
 } t_node;
 
 
-class Astart : public Map_
+class Astart  
 {
 	private:
+		cv::Mat _map;
 		std::list<t_node> _open;
 		std::list<t_node> _close;
 		std::list<t_node> _route;
-		auto  	check_point(cv::Point);
-		bool  	is_valid_point(t_node node);
-		t_node 	create_node(cv::Point point ,cv::Point prev,cv::Point end);
-		double 	heuristic(cv::Point a, cv::Point b);
-		void 	expand_node(s_node node,cv::Point end);		
+		auto  		check_point(cv::Point);
+		bool  		is_valid_point(t_node node);
+		t_node 		create_node(cv::Point point ,cv::Point prev,cv::Point end);
+		double 		heuristic(cv::Point a, cv::Point b);
+		void 		expand_node(s_node node,cv::Point end);
+		cv::Vec3b 	get_color(cv::Point2f p1);
 
 	public:
 	  Astart(cv::Mat( map));
