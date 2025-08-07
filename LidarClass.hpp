@@ -218,32 +218,13 @@ class LidarMap
 			return path;
 		}
 
-		// Helper method to print the path
-		void printPath(const std::vector<CartesianPoint>& path)
-		{
-			if (path.empty())
-			{
-				std::cout << "No path to print." << std::endl;
-				return;
-			}
-
-			std::cout << "Path found with " << path.size() << " points:" << std::endl;
-			for (size_t i = 0; i < path.size(); i++)
-			{
-				std::cout << "(" << path[i].x << ", " << path[i].y << ")";
-				if (i < path.size() - 1)
-					std::cout << " -> ";
-			}
-			std::cout << std::endl;
-		}
-
 		// Print map with path visualized
 		void printMapWithPath(const std::vector<CartesianPoint>& path)
 		{
 			std::lock_guard<std::mutex> lock(map_mutex);
 			
 			// Create a copy of the map for visualization
-			std::vector<std::vector<char>> visualMap(MAP_SIZE, std::vector<char>(MAP_SIZE, '.'));
+			std::vector<std::vector<char>> visualMap(MAP_SIZE, std::vector<char>(MAP_SIZE, '-'));
 			
 			// Mark obstacles
 			for (int y = 0; y < MAP_SIZE; y++)
@@ -272,7 +253,7 @@ class LidarMap
 			}
 			
 			// Print the map
-			std::cout << "\nMap with path (S=Start, G=Goal, *=Path, #=Obstacle, .=Free):" << std::endl;
+			std::cout << "\nMap with path (S=Start, G=Goal, *=Path, #=Obstacle, -=Free):" << std::endl;
 			for (const auto& row : visualMap)
 			{
 				for (char cell : row)
