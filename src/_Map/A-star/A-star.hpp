@@ -42,7 +42,7 @@ class Astart
 	  Astart &operator=(Astart &ret);
 	  ~Astart();
 	  bool start_al(cv::Point start,cv::Point end);
-	  void rute_to_map();
+	  void rute_to_map(cv::Mat map);
 	  
 };
 

@@ -1,0 +1,3 @@
+terminate called after throwing an instance of 'cv::Exception'
+  what():  OpenCV(4.10.0) ./modules/highgui/src/window_QT.cpp:753: error: (-27:Null pointer) NULL window handler in function 'cvSetMouseCallback'
+

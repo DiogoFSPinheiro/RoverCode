@@ -186,10 +186,10 @@ bool Astart::start_al(cv::Point start, cv::Point end)
 }
 
 
-void Astart::rute_to_map()
+void Astart::rute_to_map(cv::Mat map)
 {
 	for(auto& node :_route)		
 	{
-		_map.at<cv::Vec3b>(node.point.y, node.point.x) = cv::Vec3b(0, 230, 0);
+		map.at<cv::Vec3b>(node.point.y, node.point.x) = cv::Vec3b(0, 230, 0);
 	}
 }

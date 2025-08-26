@@ -8,12 +8,14 @@
 Map_::Map_(cv::Mat map) : Astart(map)
 {
 	_map = map;
+	_map_orig = map.clone();
 	_t_point = 10;
 }
 
 Map_::Map_(Map_ &copy) : Astart(copy._map)
 {
-	this->_map = copy._map;
+	this->_map = copy._map.clone();
+	_map_orig = copy._map_orig.clone();
 	_t_point = copy._t_point;
 }
 
@@ -26,6 +28,7 @@ Map_::~Map_()
 Map_ &Map_::operator=(Map_ &ret)
 {
 	this->_map = ret._map;
+	this->_map_orig = ret._map_orig.clone();
 	_t_point = ret._t_point;
 	return(*this);
 }
@@ -102,25 +105,36 @@ cv::Point2f Map_::set_new_point_t(cv::Point2f start , cv::Point2f end, int t)
 }
 
 
-cv::Point2f 	Map_::get_dir(float angle, cv::Point2f points)
+void Map_::set_the_obstacles()
 {
-	cv::Point2f point;
-	float rad;
 
-	rad = angle * M_PI / 180;
-	point.x = 1 * cos(rad);
-	point.y = 1 * sin(rad);
-	point.x =  points.x + point.x  ;
-	point.y =  points.y + point.y  ;
-	return(point);
+// Converte para escala de cinza
+    cv::Mat cinza;
+    cv::cvtColor(_map, cinza, cv::COLOR_BGR2GRAY);
+
+    // Reduz ruído
+    cv::Mat borrada;
+    cv::GaussianBlur(cinza, borrada, cv::Size(1, 1), 0);
+
+    // Detecção de bordas (Canny)
+    cv::Mat bordas;
+    cv::Canny(borrada, bordas, 50, 150);
+
+    // Encontra contornos
+    std::vector<std::vector<cv::Point>> contornos;
+    cv::findContours(bordas, contornos, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+
+    // Desenha os contornos detectados
+    cv::Mat resultado = _map.clone();
+    for (size_t i = 0; i < contornos.size(); ++i) {
+        double area = cv::contourArea(contornos[i]);
+        if (area > 0.2) { // define um limite mínimo de área para ser considerado obstáculo
+            cv::drawContours(_map, contornos, (int)i, cv::Scalar(0, 0, 255), 2); // vermelho = obstáculo
+        }
+    }
 }
 
-float 	Map_::get_dir(cv::Point2f point)
+void Map_::mat_clear()
 {
-	float rad;
-
-	rad = atan2(point.x,point.y);
-	return(rad * (180 / M_PI));
+	this->_map = this->_map_orig.clone();
 }
-
-
