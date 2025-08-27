@@ -193,3 +193,8 @@ void Astart::rute_to_map(cv::Mat map)
 		map.at<cv::Vec3b>(node.point.y, node.point.x) = cv::Vec3b(0, 230, 0);
 	}
 }
+
+void Astart::new_map(cv::Mat map_)
+{
+	_map = map_;
+}

@@ -137,4 +137,5 @@ void Map_::set_the_obstacles()
 void Map_::mat_clear()
 {
 	this->_map = this->_map_orig.clone();
+	new_map(_map);
 }

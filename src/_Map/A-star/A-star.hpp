@@ -43,6 +43,7 @@ class Astart
 	  ~Astart();
 	  bool start_al(cv::Point start,cv::Point end);
 	  void rute_to_map(cv::Mat map);
+	  void new_map(cv::Mat map);
 	  
 };
 
