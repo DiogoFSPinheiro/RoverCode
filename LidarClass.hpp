@@ -11,6 +11,16 @@
 const double PI = 3.14159265358979323846;
 const int MAP_SIZE = 100;  // 100x100 células
 const double SCALE = 0.1;  // metros por célula, 10 metros de mapa
+const double CAR_SIZE = 1.0;  // Car size in meters (1m x 1m)
+const int CAR_PADDING = static_cast<int>(std::ceil(CAR_SIZE / (2 * SCALE)));  // Padding in grid cells (5 cells)
+
+// ANSI Color codes for terminal output
+const std::string RESET = "\033[0m";
+const std::string RED = "\033[31m";
+const std::string GREEN = "\033[32m";
+const std::string YELLOW = "\033[33m";
+const std::string BLUE = "\033[34m";
+const std::string CYAN = "\033[36m";
 
 struct PolarPoint
 {
@@ -51,6 +61,7 @@ class LidarMap
 	private:
 
 		std::vector<std::vector<int>> map;
+		std::vector<std::vector<int>> inflatedMap;  // Map with inflated obstacles for pathfinding
 		mutable std::mutex map_mutex;
 
 		CartesianPoint polarToCartesian(const PolarPoint& point)
@@ -59,6 +70,38 @@ class LidarMap
 			int x = static_cast<int>(std::round((point.distance * cos(angle_rad)) / SCALE + MAP_SIZE / 2));
 			int y = static_cast<int>(std::round((point.distance * sin(angle_rad)) / SCALE + MAP_SIZE / 2));
 			return { x, y };
+		}
+
+		// Inflate obstacles to account for car size (minimal padding for smooth curves)
+		void inflateObstacles()
+		{
+			inflatedMap = map;  // Start with original map
+			
+			// For each obstacle in the original map, add minimal padding
+			for (int y = 0; y < MAP_SIZE; y++)
+			{
+				for (int x = 0; x < MAP_SIZE; x++)
+				{
+					if (map[y][x] == 1)  // If there's an obstacle
+					{
+						// Add minimal padding around this obstacle (just adjacent cells)
+						for (int dy = -CAR_PADDING; dy <= CAR_PADDING; dy++)
+						{
+							for (int dx = -CAR_PADDING; dx <= CAR_PADDING; dx++)
+							{
+								int newX = x + dx;
+								int newY = y + dy;
+								
+								// Check bounds and mark as obstacle
+								if (newX >= 0 && newX < MAP_SIZE && newY >= 0 && newY < MAP_SIZE)
+								{
+									inflatedMap[newY][newX] = 1;
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 
 		// Helper function to calculate Euclidean distance between two points
@@ -72,7 +115,7 @@ class LidarMap
 		{
 			return point.x >= 0 && point.x < MAP_SIZE && 
 				   point.y >= 0 && point.y < MAP_SIZE && 
-				   map[point.y][point.x] == 0;  // 0 = free space, 1 = obstacle
+				   inflatedMap[point.y][point.x] == 0;  // Use inflated map for pathfinding
 		}
 
 		// Get valid neighboring points (8-directional movement)
@@ -95,7 +138,8 @@ class LidarMap
 
 	public:
 
-		LidarMap() : map(MAP_SIZE, std::vector<int>(MAP_SIZE, 0)) {}
+		LidarMap() : map(MAP_SIZE, std::vector<int>(MAP_SIZE, 0)), 
+					 inflatedMap(MAP_SIZE, std::vector<int>(MAP_SIZE, 0)) {}
 
 
 		void addLidarPoint(const PolarPoint& point)
@@ -105,16 +149,40 @@ class LidarMap
 			{
 				std::lock_guard<std::mutex> lock(map_mutex);
 				map[cart.y][cart.x] = 1;
+				inflateObstacles();  // Regenerate inflated map after adding obstacle
 			}
 		}
 
 		void printMap()
 		{
 			std::lock_guard<std::mutex> lock(map_mutex);
+			std::cout << "Original map (# = obstacles, . = free space):" << std::endl;
 			for (const auto& row : map)
 			{
 				for (int cell : row)
-					std::cout << (cell ? '#' : '.');
+				{
+					if (cell == 1)
+						std::cout << RED << '#' << RESET;  // Red obstacles
+					else
+						std::cout << '.';  // Normal free space
+				}
+				std::cout << std::endl;
+			}
+		}
+
+		void printInflatedMap()
+		{
+			std::lock_guard<std::mutex> lock(map_mutex);
+			std::cout << "Inflated map (# = obstacles + car padding, . = free space):" << std::endl;
+			for (const auto& row : inflatedMap)
+			{
+				for (int cell : row)
+				{
+					if (cell == 1)
+						std::cout << RED << '#' << RESET;  // Red obstacles
+					else
+						std::cout << '.';  // Normal free space
+				}
 				std::cout << std::endl;
 			}
 		}
@@ -224,15 +292,15 @@ class LidarMap
 			std::lock_guard<std::mutex> lock(map_mutex);
 			
 			// Create a copy of the map for visualization
-			std::vector<std::vector<char>> visualMap(MAP_SIZE, std::vector<char>(MAP_SIZE, '-'));
+			std::vector<std::vector<char>> visualMap(MAP_SIZE, std::vector<char>(MAP_SIZE, '.'));
 			
-			// Mark obstacles
+			// Mark only original obstacles (skip inflated padding for cleaner display)
 			for (int y = 0; y < MAP_SIZE; y++)
 			{
 				for (int x = 0; x < MAP_SIZE; x++)
 				{
 					if (map[y][x] == 1)
-						visualMap[y][x] = '#';
+						visualMap[y][x] = '#';  // Original obstacles
 				}
 			}
 			
@@ -253,11 +321,31 @@ class LidarMap
 			}
 			
 			// Print the map
-			std::cout << "\nMap with path (S=Start, G=Goal, *=Path, #=Obstacle, -=Free):" << std::endl;
+			std::cout << "\nMap with path (S=Start, G=Goal, *=Path, #=Obstacles, .=Free):" << std::endl;
+			std::cout << "Car size: " << CAR_SIZE << "m x " << CAR_SIZE << "m (safety padding applied invisibly)" << std::endl;
 			for (const auto& row : visualMap)
 			{
 				for (char cell : row)
-					std::cout << cell;
+				{
+					switch(cell)
+					{
+						case '#':  // Obstacles in red
+							std::cout << RED << cell << RESET;
+							break;
+						case '*':  // Path in green
+							std::cout << GREEN << cell << RESET;
+							break;
+						case 'S':  // Start in cyan
+							std::cout << CYAN << cell << RESET;
+							break;
+						case 'G':  // Goal in yellow
+							std::cout << YELLOW << cell << RESET;
+							break;
+						default:   // Free space (dots) in normal color
+							std::cout << cell;
+							break;
+					}
+				}
 				std::cout << std::endl;
 			}
 		}
