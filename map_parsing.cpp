@@ -65,11 +65,7 @@ int main() {
  
     Map_ *map_ = new Map_(imagem);
     
-    cv::Point p1(90,104);
-
-    cv::Point p2(112,276); 
-    map_->start_al(p1, p2);
-    map_->rute_to_map(map_->get_map());
+    map_->set_the_obstacles();
     cv::namedWindow(JNL, cv::WINDOW_NORMAL);
     cv::resizeWindow(JNL, 800, 600);
 
