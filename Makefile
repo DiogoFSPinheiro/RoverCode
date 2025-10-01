@@ -16,6 +16,9 @@ all: $(NAME)
 
 $(NAME): $(SRCS)
 
+docker:
+	sudo xhost +local:docker
+	sudo docker-compose up --build
 
 re:fclean
 	make all
